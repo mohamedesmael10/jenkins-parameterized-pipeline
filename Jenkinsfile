@@ -8,6 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                // Checkout the code from GitHub
                 checkout scm
             }
         }
@@ -16,7 +17,8 @@ pipeline {
             steps {
                 script {
                     docker.image('node:16-alpine').inside {
-                        dir('app') {  // Directory where package.json is located
+                        // Change directory to where package.json is located
+                        dir('jenkins-parameterized-pipeline/app') {
                             sh 'npm install'
                         }
                     }
@@ -28,7 +30,8 @@ pipeline {
             steps {
                 script {
                     docker.image('node:16-alpine').inside {
-                        dir('app') {  // Directory where index.js is located
+                        // Change directory to where index.js is located
+                        dir('jenkins-parameterized-pipeline/app') {
                             sh 'node index.js'
                         }
                     }
@@ -39,7 +42,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("my-node-app:${params.DOCKER_TAG}", 'app')
+                    docker.build("my-node-app:${params.DOCKER_TAG}", 'jenkins-parameterized-pipeline/app')
                 }
             }
         }
