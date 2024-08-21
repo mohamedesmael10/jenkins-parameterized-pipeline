@@ -1,21 +1,24 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Tag for the Docker image')
-    }
-
     stages {
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                checkout scm
+                script {
+                    // Clone the repository into the specified directory
+                    git url: 'https://github.com/mohamedesmael10/jenkins-parameterized-pipeline.git', branch: 'main'
+                }
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
                 script {
-                    echo 'Building the project...'
+                    docker.image('node:16-alpine').inside {
+                        dir('app') {  // Change to the directory where package.json is located
+                            sh 'npm install'
+                        }
+                    }
                 }
             }
         }
@@ -23,29 +26,13 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh 'node app/index.js'
-                }
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("my-node-app:${params.DOCKER_TAG}")
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-credentials-id') {
-                        docker.image("my-node-app:${params.DOCKER_TAG}").push()
+                    docker.image('node:16-alpine').inside {
+                        dir('app') {  // Change to the directory where index.js is located
+                            sh 'node index.js'
+                        }
                     }
                 }
             }
         }
     }
 }
-EOF
-
