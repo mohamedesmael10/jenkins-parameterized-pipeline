@@ -15,9 +15,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 script {
-                    // Run commands inside a Docker container
                     docker.image('node:16-alpine').inside {
-                        dir('/jenkins-parameterized-pipeline/app') {  // Change to the directory where package.json is located
+                        dir('app') {  // Directory where package.json is located
                             sh 'npm install'
                         }
                     }
@@ -29,7 +28,7 @@ pipeline {
             steps {
                 script {
                     docker.image('node:16-alpine').inside {
-                        dir('/jenkins-parameterized-pipeline/app') {  // Change to the directory where the app is located
+                        dir('app') {  // Directory where index.js is located
                             sh 'node index.js'
                         }
                     }
@@ -40,7 +39,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("my-node-app:${params.DOCKER_TAG}")
+                    docker.build("my-node-app:${params.DOCKER_TAG}", 'app')
                 }
             }
         }
