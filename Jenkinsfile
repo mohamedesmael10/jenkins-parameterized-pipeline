@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' // Your Docker Hub credentials ID
+        DOCKER_REGISTRY = 'docker.io'
+    }
+
     stages {
         stage('Clone') {
             steps {
@@ -30,6 +35,24 @@ pipeline {
                         dir('app') {  // Change to the directory where index.js is located
                             sh 'node index.js'
                         }
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build('mohamedesmael/jenkins-parameterized-pipeline:latest', 'app/')
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry("https://${env.DOCKER_REGISTRY}", "${env.DOCKER_CREDENTIALS_ID}") {
+                        docker.image('mohamedesmael/jenkins-parameterized-pipeline:latest').push('latest')
                     }
                 }
             }
