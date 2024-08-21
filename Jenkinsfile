@@ -17,7 +17,9 @@ pipeline {
                 script {
                     // Run commands inside a Docker container
                     docker.image('node:16-alpine').inside {
-                        sh 'npm install'
+                        dir('/jenkins-parameterized-pipeline/app') {  // Change to the directory where package.json is located
+                            sh 'npm install'
+                        }
                     }
                 }
             }
@@ -27,7 +29,9 @@ pipeline {
             steps {
                 script {
                     docker.image('node:16-alpine').inside {
-                        sh 'node app/index.js'
+                        dir('/jenkins-parameterized-pipeline/app') {  // Change to the directory where the app is located
+                            sh 'node index.js'
+                        }
                     }
                 }
             }
