@@ -1,8 +1,9 @@
 pipeline {
-    agent any
-
-    parameters {
-        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Tag for the Docker image')
+    agent {
+        docker {
+            image 'node:16-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
     }
 
     stages {
@@ -12,19 +13,15 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    echo 'Building the project...'
-                }
+                sh 'npm install'
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    sh 'node app/index.js'
-                }
+                sh 'node app/index.js'
             }
         }
 
@@ -47,5 +44,3 @@ pipeline {
         }
     }
 }
-EOF
-
