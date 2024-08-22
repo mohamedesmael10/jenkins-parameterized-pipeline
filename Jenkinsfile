@@ -59,6 +59,7 @@ pipeline {
             }
             steps {
                 script {
+                    echo "Attempting to push Docker image..."
                     docker.withRegistry("https://${env.DOCKER_REGISTRY}", "${env.DOCKER_CREDENTIALS_ID}") {
                         docker.image('mohamedesmael/jenkins-parameterized-pipeline:latest').push('latest')
                     }
