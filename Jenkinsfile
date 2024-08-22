@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'DOCKER_PUSH', defaultValue: false, description: 'Set to true to enable Docker image push.')
+    }
+
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub' // Use the correct credentials ID
+        DOCKER_CREDENTIALS_ID = 'dockerhub' // Your Docker Hub credentials ID
         DOCKER_REGISTRY = 'docker.io'
     }
 
@@ -10,7 +14,6 @@ pipeline {
         stage('Clone') {
             steps {
                 script {
-                    // Clone the repository into the specified directory
                     git url: 'https://github.com/mohamedesmael10/jenkins-parameterized-pipeline.git', branch: 'main'
                 }
             }
@@ -49,6 +52,11 @@ pipeline {
         }
 
         stage('Push Docker Image') {
+            when {
+                expression {
+                    return params.DOCKER_PUSH
+                }
+            }
             steps {
                 script {
                     docker.withRegistry("https://${env.DOCKER_REGISTRY}", "${env.DOCKER_CREDENTIALS_ID}") {
@@ -56,6 +64,21 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            // This block will run after all stages, regardless of success or failure
+            echo 'Pipeline completed.'
+        }
+        success {
+            // This block will run if the pipeline succeeds
+            echo 'Pipeline succeeded.'
+        }
+        failure {
+            // This block will run if the pipeline fails
+            echo 'Pipeline failed.'
         }
     }
 }
