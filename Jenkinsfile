@@ -69,15 +69,12 @@ pipeline {
 
     post {
         always {
-            // This block will run after all stages, regardless of success or failure
             echo 'Pipeline completed.'
         }
         success {
-            // This block will run if the pipeline succeeds
             echo 'Pipeline succeeded.'
         }
         failure {
-            // This block will run if the pipeline fails
             echo 'Pipeline failed.'
         }
     }
